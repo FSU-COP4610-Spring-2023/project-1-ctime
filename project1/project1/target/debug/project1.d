@@ -1,0 +1,1 @@
+/home/nratzlaf/project-1-ctime/project1/project1/target/debug/project1: /home/nratzlaf/project-1-ctime/project1/project1/src/envVar.rs /home/nratzlaf/project-1-ctime/project1/project1/src/main.rs /home/nratzlaf/project-1-ctime/project1/project1/src/tilde.rs

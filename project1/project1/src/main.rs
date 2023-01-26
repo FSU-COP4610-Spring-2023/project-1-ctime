@@ -1,5 +1,14 @@
+#![allow(non_snake_case)]
+
 use std::io::{self, Write};
 use std::process::Command;
+
+mod envVar;
+use envVar::envVar::replace as replaceEnv;
+
+mod tilde;
+use tilde::tilde::replace as replaceTilde;
+
 
 fn main(){
     loop {
@@ -20,8 +29,19 @@ fn main(){
 
         //Separate tokens into command and args
         let command= tokens.next().unwrap();
-        for token in tokens{
-            args.push(token);
+        for token in tokens {
+            args.push(token.to_string());
+        }
+        
+        for i in 0..args.len() {
+            //Replace environment variables
+            if args[i].starts_with("$") {
+                args[i] = replaceEnv(args[i].to_string());
+            }
+            //Replace tilde
+            else if args[i].starts_with("~") {
+                args[i] = replaceTilde(args[i].to_string());
+            }
         }
 
         //Spawn a new thread and execute the command with arguments
