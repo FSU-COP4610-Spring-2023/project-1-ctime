@@ -3,6 +3,11 @@
 use std::io::{self, Write};
 use std::process::Command;
 
+
+
+mod prompt;
+use prompt::prompt::print as printPrompt;
+
 mod envVar;
 use envVar::envVar::replace as replaceEnv;
 
@@ -13,10 +18,14 @@ use tilde::tilde::replace as replaceTilde;
 fn main(){
     loop {
         //char to use as prompt
-        let prompt_char = "> ";
+        // let prompt_char = "> ";
+        //let prompt_str : &str = "";
+
+
         
         //flush to ensure it prints before read_line
-        print!("{prompt_char}");
+        //print!("{prompt_char}");
+        printPrompt();
         io::stdout().flush().ok();
 
         //Read input
