@@ -4,7 +4,6 @@ use std::io::{self, Write};
 use std::process::Command;
 
 
-
 mod prompt;
 use prompt::prompt::print as printPrompt;
 
@@ -15,16 +14,52 @@ mod tilde;
 use tilde::tilde::replace as replaceTilde;
 
 
+use std::ffi::CString;
+use std::os::raw::c_char;
+
+//use nix::unistd::execv;
+
 fn main(){
+    //let ss = "Hello World".to_string();
+    //let s = CString::new(ss).unwrap();
+    //println!("{:?}", s);
     loop {
-        //char to use as prompt
-        // let prompt_char = "> ";
-        //let prompt_str : &str = "";
-
-
         
         //flush to ensure it prints before read_line
-        //print!("{prompt_char}");
+        printPrompt();
+        io::stdout().flush().ok();
+
+        //Read input
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+
+	//take in the string as tokens splitting whitespaces
+	let mut tokens = input.trim().split_whitespace();
+
+	//create vectors to hold the strings and CStrings
+	let mut args = Vec::new();
+	let mut cargs = Vec::new();
+
+        //Separate tokens into command and args
+	//convert tokens to cstrings and push to cargs vector
+        //let command= tokens.next().unwrap();
+        for token in tokens {
+            args.push(token.to_string());
+	    let hello = CString::new(token).unwrap();
+	    cargs.push(hello);
+        }
+
+	//prointing for teting purposes
+	for x in &cargs {
+	    println!("{:?}" , x);
+	}
+	
+	
+	//started trying out execv 
+//	execv(cargs[0], cargs);
+//	println!("finished demo");
+	
+/*
         printPrompt();
         io::stdout().flush().ok();
 
@@ -60,5 +95,6 @@ fn main(){
             .unwrap();
 
         child.wait().ok();
-    }
+*/    
+    } 
 }

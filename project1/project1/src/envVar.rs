@@ -4,7 +4,7 @@ pub mod envVar {
 
         match std::env::var(input) {
             Ok(val) => return val,
-            Err(e) => return "".to_string(),
+            Err(_e) => return "".to_string(),
         }
     }
 }
