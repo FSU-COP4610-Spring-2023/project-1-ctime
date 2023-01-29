@@ -3,7 +3,6 @@
 use std::io::{self, Write};
 use std::process::Command;
 
-
 mod prompt;
 use prompt::prompt::print as printPrompt;
 
@@ -13,16 +12,13 @@ use envVar::envVar::replace as replaceEnv;
 mod tilde;
 use tilde::tilde::replace as replaceTilde;
 
-
 use std::ffi::CString;
 use std::os::raw::c_char;
 
-//use nix::unistd::execv;
+use nix::unistd::execv;
+use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
 
 fn main(){
-    //let ss = "Hello World".to_string();
-    //let s = CString::new(ss).unwrap();
-    //println!("{:?}", s);
     loop {
         
         //flush to ensure it prints before read_line
@@ -49,12 +45,17 @@ fn main(){
 	    cargs.push(hello);
         }
 
-	//prointing for teting purposes
-	for x in &cargs {
-	    println!("{:?}" , x);
-	}
-	
-	
+	match unsafe{fork()} {
+	    Ok(ForkResult::Parent { child, ..}) => {
+		waitpid(child , None).unwrap();
+	    }
+	    Ok(ForkResult::Child) => {
+		execv(&cargs[0], &cargs);
+		unsafe { libc::_exit(0) };
+	    }
+	    Err(_) => println!("Forking Failed"),
+	}	
+    }		
 	//started trying out execv 
 //	execv(cargs[0], cargs);
 //	println!("finished demo");
@@ -96,5 +97,4 @@ fn main(){
 
         child.wait().ok();
 */    
-    } 
 }
