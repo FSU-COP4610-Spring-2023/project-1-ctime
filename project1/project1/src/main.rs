@@ -18,6 +18,8 @@ use std::os::raw::c_char;
 use nix::unistd::execv;
 use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
 
+use std::env;
+
 fn main(){
     loop {
         
@@ -36,15 +38,32 @@ fn main(){
 	let mut args = Vec::new();
 	let mut cargs = Vec::new();
 
-        //Separate tokens into command and args
-	//convert tokens to cstrings and push to cargs vector
-        //let command= tokens.next().unwrap();
+	//psuh each string into args vector
         for token in tokens {
             args.push(token.to_string());
-	    let hello = CString::new(token).unwrap();
-	    cargs.push(hello);
         }
 
+	//loop through the strings to find if any command 
+	//is environment variable or ~ expansion
+	for i in 0..args.len() {
+            //Replace environment variables
+            if args[i].starts_with("$") {
+                args[i] = replaceEnv(args[i].to_string());
+            }
+            //Replace tilde
+            else if args[i].starts_with("~") {
+                args[i] = replaceTilde(args[i].to_string());
+            }
+        }
+
+	//push srtings into CString vector to pass into execv function
+	for j in args {
+	    let cstr = CString::new(j).unwrap();
+	    cargs.push(cstr);
+	}
+
+	//Forking function - creat child process to run execv 
+	//for command line functionality
 	match unsafe{fork()} {
 	    Ok(ForkResult::Parent { child, ..}) => {
 		waitpid(child , None).unwrap();
