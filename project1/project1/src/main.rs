@@ -21,8 +21,27 @@ use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
 use std::env;
 
 fn main(){
+  
+    let mut path_var = env::var("PATH").unwrap_or("".to_string());
+
+    let mut path_vars_vec: Vec<&str> = path_var.split(":").collect();
+
+    //commented out code was just messing with 
+    //converting path strings to CStrings to use 
+    //when calling execv 
+
+/*
+    let mut cpath_vars_vec = Vec::new();
+
+    //println!("{:?}", path_vars_vec);
+
+    for i in &path_vars_vec{
+        let cpath = CString::new(i).unwrap();
+	cpath_vars_vec.push(cpath);
+    }
+*/
+
     loop {
-        
         //flush to ensure it prints before read_line
         printPrompt();
         io::stdout().flush().ok();
@@ -56,13 +75,18 @@ fn main(){
             }
         }
 
+	//place holder for now ot get path search working for most general functions
+	//just appendning the path "/usr/bin" to beginnig of a command so it works 
+	//when calling execv
+	args[0] = path_vars_vec[3].to_owned() + "/" + &args[0];
+
 	//push srtings into CString vector to pass into execv function
 	for j in args {
 	    let cstr = CString::new(j).unwrap();
 	    cargs.push(cstr);
 	}
 
-	//Forking function - creat child process to run execv 
+	//Forking function - create child process to run execv 
 	//for command line functionality
 	match unsafe{fork()} {
 	    Ok(ForkResult::Parent { child, ..}) => {
@@ -75,6 +99,7 @@ fn main(){
 	    Err(_) => println!("Forking Failed"),
 	}	
     }		
+
 	//started trying out execv 
 //	execv(cargs[0], cargs);
 //	println!("finished demo");
@@ -115,5 +140,7 @@ fn main(){
             .unwrap();
 
         child.wait().ok();
-*/    
+*/
+
+    
 }
