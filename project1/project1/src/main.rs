@@ -12,6 +12,11 @@ use envVar::envVar::replace as replaceEnv;
 mod tilde;
 use tilde::tilde::replace as replaceTilde;
 
+mod IORedirection;
+use IORedirection::IORedirection::overwrite;
+use IORedirection::IORedirection::append;
+use IORedirection::IORedirection::readFile;
+
 use std::ffi::CString;
 use std::os::raw::c_char;
 
@@ -25,6 +30,8 @@ fn main(){
     let mut path_var = env::var("PATH").unwrap_or("".to_string());
 
     let mut path_vars_vec: Vec<&str> = path_var.split(":").collect();
+
+    
 
     //commented out code was just messing with 
     //converting path strings to CStrings to use 
@@ -73,6 +80,19 @@ fn main(){
             else if args[i].starts_with("~") {
                 args[i] = replaceTilde(args[i].to_string());
             }
+            //Check for redirection
+            //Right now, just redirects the previous argument to the output file.  
+            //Need to update to run the command and pass in the output.
+            else if args[i] == ">" {
+                overwrite(args[i-1].as_str(), args[i+1].as_str());
+            }
+            else if args[i] == ">>" {
+                append(args[i-1].as_str(), args[i+1].as_str());
+            }
+            else if args[i] == "<" {
+                let content = readFile(args[i-1].as_str());
+            }
+
         }
 
 	//place holder for now ot get path search working for most general functions
