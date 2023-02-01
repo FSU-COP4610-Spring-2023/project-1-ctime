@@ -21,6 +21,9 @@ mod execution;
 use execution::execution::convert_to_cstring;
 use execution::execution::execute;
 
+mod psearch;
+use psearch::psearch::path_search;
+
 use std::ffi::CString;
 use std::os::raw::c_char;
 
@@ -81,10 +84,11 @@ fn main(){
 
         }
 
-	args[0] = path_vars_vec[3].to_owned() + "/" + &args[0];
-	
-	//calls execute function 
-	execute(args);
+	//create vec to hold the return of path_search (vector of command added to 
+	//to the end of each directory path 
+	let mut pvec: Vec<String> = path_search(&path_vars_vec, &args);
+	execute(args, pvec);
+
     }		
 }
 

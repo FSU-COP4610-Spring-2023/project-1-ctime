@@ -35,21 +35,30 @@ pub mod execution {
 	return cargs;
     }
 
-    pub fn execute(mut input: Vec<String>) {
-        let mut cargs = Vec::new();
+    pub fn execute(mut input: Vec<String>, mut input2: Vec<String>) {	
+	let mut cargs = Vec::new();
         for i in input {
             let cstring = CString::new(i).unwrap();
             cargs.push(cstring);
         }
 
+	let mut cargs2 = Vec::new();
+        for i in input2 {
+            let cstring2 = CString::new(i).unwrap();
+            cargs2.push(cstring2);
+        }
+	
 	match unsafe{fork()} {
             Ok(ForkResult::Parent { child, ..}) => {
                 waitpid(child , None).unwrap();
             }
             Ok(ForkResult::Child) => {
-                execv(&cargs[0], &cargs);
-                unsafe { libc::_exit(0) };
-            }
+		for i in 0..cargs2.len() {
+		    cargs[0] = cargs2[i].to_owned();
+		    execv(&cargs[0], &cargs);
+//                    unsafe { libc::_exit(0) };       ------May need to look back into this but for now it works -----
+	    	}
+	    }
             Err(_) => println!("Forking Failed"),
         } 
     }
