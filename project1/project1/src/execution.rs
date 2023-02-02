@@ -59,6 +59,12 @@ pub mod execution {
                     cargs.pop();    //remove redirect token and output file from command vector
                     cargs.pop();
                 }
+                else if rd == 2 {
+                    let outfile = cargs[cargs.len() - 1].to_str();
+                    crate::IORedirection::IORedirection::append(outfile.unwrap());
+                    cargs.pop();    //remove redirect token and output file from command vector
+                    cargs.pop();
+                }
                 for i in 0..cargs2.len() {
                     cargs[0] = cargs2[i].to_owned();
                     execv(&cargs[0], &cargs);

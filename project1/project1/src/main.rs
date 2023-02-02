@@ -76,7 +76,7 @@ fn main(){
                 rdNum = 1;  //redirect behavior as int
             }
             else if args[i] == ">>" {
-                //append(args[i-1].as_str(), args[i+1].as_str());
+                rdNum = 2;
             }
             else if args[i] == "<" {
                 //let content = readFile(args[i-1].as_str());
