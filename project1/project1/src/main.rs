@@ -39,6 +39,8 @@ fn main(){
     let mut path_vars_vec: Vec<&str> = path_var.split(":").collect();
 
     loop {
+        let mut rdNum = 0;  //Passing in IOredirection behavior as an int
+
         //flush to ensure it prints before read_line
         printPrompt();
         io::stdout().flush().ok();
@@ -66,29 +68,26 @@ fn main(){
                 args[i] = replaceEnv(args[i].to_string());
             }
             //Replace tilde
-            else if args[i].starts_with("~") {
+            if args[i].starts_with("~") {
                 args[i] = replaceTilde(args[i].to_string());
             }
-            //Check for redirection
-            //Right now, just redirects the previous argument to the output file.  
-            //Need to update to run the command and pass in the output.
-            else if args[i] == ">" {
-                overwrite(args[i-1].as_str(), args[i+1].as_str());
+            //Check for redirection. Incomplete but getting close.
+            if args[i] == ">" {
+                rdNum = 1;  //redirect behavior as int
             }
             else if args[i] == ">>" {
-                append(args[i-1].as_str(), args[i+1].as_str());
+                //append(args[i-1].as_str(), args[i+1].as_str());
             }
             else if args[i] == "<" {
-                let content = readFile(args[i-1].as_str());
+                //let content = readFile(args[i-1].as_str());
             }
-
         }
 
 	//create vec to hold the return of path_search (vector of command added to 
 	//to the end of each directory path 
 	let mut pvec: Vec<String> = path_search(&path_vars_vec, &args);
-	execute(args, pvec);
-
+    
+	execute(args, pvec, rdNum);
     }		
 }
 
