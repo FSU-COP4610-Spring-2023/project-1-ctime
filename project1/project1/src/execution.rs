@@ -53,16 +53,38 @@ pub mod execution {
                 waitpid(child , None).unwrap();
             }
             Ok(ForkResult::Child) => {
-                if rd == 1 {    //1: Overwrite
+                if rd == 1 {    //1: Output
                     let outfile = cargs[cargs.len() - 1].to_str();
                     crate::IORedirection::IORedirection::overwrite(outfile.unwrap());
                     cargs.pop();    //remove redirect token and output file from command vector
                     cargs.pop();
                 }
-                else if rd == 2 {
+                else if rd == 2 {   //2: Input
+                    let infile = cargs[cargs.len() - 1].to_str();
+                    crate::IORedirection::IORedirection::readFile(infile.unwrap());
+                    cargs.pop();
+                    cargs.pop();
+                }
+                else if rd == 3 {   //Output, then input
                     let outfile = cargs[cargs.len() - 1].to_str();
-                    crate::IORedirection::IORedirection::append(outfile.unwrap());
-                    cargs.pop();    //remove redirect token and output file from command vector
+                    crate::IORedirection::IORedirection::overwrite(outfile.unwrap());
+                    cargs.pop();
+                    cargs.pop();
+
+                    let infile = cargs[cargs.len() - 1].to_str();
+                    crate::IORedirection::IORedirection::readFile(infile.unwrap());
+                    cargs.pop();
+                    cargs.pop();
+                }
+                else if rd == 4 {   //Input, then output
+                    let infile = cargs[cargs.len() - 1].to_str();
+                    crate::IORedirection::IORedirection::readFile(infile.unwrap());
+                    cargs.pop();
+                    cargs.pop();
+
+                    let outfile = cargs[cargs.len() - 1].to_str();
+                    crate::IORedirection::IORedirection::overwrite(outfile.unwrap());
+                    cargs.pop();
                     cargs.pop();
                 }
                 for i in 0..cargs2.len() {

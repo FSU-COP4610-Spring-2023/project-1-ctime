@@ -61,7 +61,7 @@ fn main(){
         }
 
 	//loop through the strings to find if any command 
-	//is environment variable or ~ expansion
+	//is environment variable, ~ expansion, or io redirection
 	for i in 0..args.len() {
             //Replace environment variables
             if args[i].starts_with("$") {
@@ -71,15 +71,22 @@ fn main(){
             if args[i].starts_with("~") {
                 args[i] = replaceTilde(args[i].to_string());
             }
-            //Check for redirection. Incomplete but getting close.
+            //Assign int for redirection behavior
             if args[i] == ">" {
-                rdNum = 1;  //redirect behavior as int
-            }
-            else if args[i] == ">>" {
-                rdNum = 2;
+                if rdNum == 2 {
+                    rdNum = 3;
+                }
+                else {
+                    rdNum = 1;
+                }              
             }
             else if args[i] == "<" {
-                //let content = readFile(args[i-1].as_str());
+                if rdNum == 1 {
+                    rdNum = 4;
+                }
+                else {
+                    rdNum = 2;
+                }               
             }
         }
 
