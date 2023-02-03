@@ -51,6 +51,8 @@ fn main(){
     let mut saved_args:Vec<Vec<String>> = Vec::new();
     let mut jobs_delete: Vec<usize> = Vec::new();
     loop {
+        let mut rdNum = 0;  //Passing in IOredirection behavior as an int
+
         
         //if there is a job running in background, loop through the list
         //of jobs and check their status. If finished remove from list.
@@ -109,29 +111,33 @@ fn main(){
         }
 
 	//loop through the strings to find if any command 
-	//is environment variable or ~ expansion
+	//is environment variable, ~ expansion, or io redirection
 	for i in 0..args.len() {
             //Replace environment variables
             if args[i].starts_with("$") {
                 args[i] = replaceEnv(args[i].to_string());
             }
             //Replace tilde
-            else if args[i].starts_with("~") {
+            if args[i].starts_with("~") {
                 args[i] = replaceTilde(args[i].to_string());
             }
-            //Check for redirection
-            //Right now, just redirects the previous argument to the output file.  
-            //Need to update to run the command and pass in the output.
-            else if args[i] == ">" {
-                overwrite(args[i-1].as_str(), args[i+1].as_str());
-            }
-            else if args[i] == ">>" {
-                append(args[i-1].as_str(), args[i+1].as_str());
+            //Assign int for redirection behavior
+            if args[i] == ">" {
+                if rdNum == 2 {
+                    rdNum = 3;
+                }
+                else {
+                    rdNum = 1;
+                }              
             }
             else if args[i] == "<" {
-                let content = readFile(args[i-1].as_str());
+                if rdNum == 1 {
+                    rdNum = 4;
+                }
+                else {
+                    rdNum = 2;
+                }               
             }
-
         }
 
 	//create vec to hold the return of path_search (vector of command added to 
@@ -156,7 +162,7 @@ fn main(){
     }
     else
     {
-	    execute(args, pvec);
+	    execute(args, pvec,rdNum);
 
     }
 }

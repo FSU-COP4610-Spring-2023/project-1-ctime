@@ -3,27 +3,38 @@ pub mod IORedirection {
     use std::io::Write;
     use std::fs::OpenOptions;
 
-    pub fn overwrite(data : &str, outfile : &str) {
-        std::fs::File::open(outfile).ok();
-        std::fs::write(outfile, data).expect("Unable to write file");
-        println!("Redirected");
+    use std::os::fd::{AsRawFd, AsFd};
+    use nix::errno::Errno;
+
+    pub fn overwrite(outfile : &str) {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(outfile)
+            .expect("Unable to open file");
+            
+        std::fs::write(outfile, "").expect("Unable to write file");
+        nix::unistd::dup2(file.as_raw_fd(), std::io::stdout().as_raw_fd()).ok();
     }
 
-    pub fn append(data : &str, outfile : &str) {
+    //Everything below this needs to be updated. Only overwrite() is working correctly
+    pub fn append(outfile : &str) {
         let mut appendFile = OpenOptions::new()
             .append(true)
             .create(true)
             .open(outfile)
             .expect("Unable to open file");
 
-        appendFile.write_all("\n".as_bytes()).expect("Unable to write file");
-        appendFile.write_all(data.as_bytes()).expect("Unable to write file");
-        println!("Appended");
+        nix::unistd::dup2(appendFile.as_raw_fd(), std::io::stdout().as_raw_fd()).ok();
     }
 
-    pub fn readFile(infile : &str) -> String {
-        return fs::read_to_string(infile).expect("Unable to read file");
+    pub fn readFile(file : &str) {
+        //let file = std::fs::File::open(infile);
+        let mut infile = OpenOptions::new()
+            .read(true)
+            .open(file)
+            .expect("Unable to open file");
+
+        nix::unistd::dup2(infile.as_raw_fd(), std::io::stdin().as_raw_fd()).ok();
     }
-
-
 }
