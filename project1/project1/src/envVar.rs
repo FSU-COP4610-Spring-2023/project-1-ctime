@@ -3,8 +3,8 @@ pub mod envVar {
         input.remove(0);
 
         match std::env::var(input) {
-            Ok(val) => return val,
-            Err(_e) => return "".to_string(),
+            Ok(val) => val,
+            Err(_e) => "".to_string(),
         }
     }
 }

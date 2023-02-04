@@ -1,13 +1,13 @@
 pub mod IORedirection {
-    use std::fs;
+    
     use std::io::Write;
     use std::fs::OpenOptions;
 
-    use std::os::fd::{AsRawFd, AsFd};
-    use nix::errno::Errno;
+    use std::os::fd::{AsRawFd};
+    
 
     pub fn overwrite(outfile : &str) {
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .write(true)
             .create(true)
             .open(outfile)
@@ -19,7 +19,7 @@ pub mod IORedirection {
 
     //Everything below this needs to be updated. Only overwrite() is working correctly
     pub fn append(outfile : &str) {
-        let mut appendFile = OpenOptions::new()
+        let appendFile = OpenOptions::new()
             .append(true)
             .create(true)
             .open(outfile)
@@ -30,7 +30,7 @@ pub mod IORedirection {
 
     pub fn readFile(file : &str) {
         //let file = std::fs::File::open(infile);
-        let mut infile = OpenOptions::new()
+        let infile = OpenOptions::new()
             .read(true)
             .open(file)
             .expect("Unable to open file");

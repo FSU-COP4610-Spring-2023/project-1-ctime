@@ -1,19 +1,19 @@
 pub mod execution {
-    use std::io::{self, Write};
+    use std::io::{self};
 
     use std::ffi::CString;
-    use std::os::raw::c_char;
+    
 
     use nix::unistd::execv;
-    use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
+    use nix::{sys::wait::waitpid, unistd::{fork, ForkResult}};
 
-    use std::env;
+    
 
     pub fn fill_arg_vector() -> Vec<String> {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         
-        let mut tokens = input.trim().split_whitespace();
+        let tokens = input.split_whitespace();
 
         let mut args = Vec::new();
 
@@ -21,21 +21,21 @@ pub mod execution {
 	    args.push(token.to_string());
 	}     
 
-	return args;
+	args
     }
 
     
-    pub fn convert_to_cstring(mut input: Vec<String>) -> Vec<CString> {
+    pub fn convert_to_cstring(input: Vec<String>) -> Vec<CString> {
 	let mut cargs = Vec::new();
 	for i in input {
 	    let cstring = CString::new(i).unwrap();
 	    cargs.push(cstring);
 	}	
 
-	return cargs;
+	cargs
     }
 
-    pub fn execute(mut input: Vec<String>, mut input2: Vec<String>, rd : i32) {	
+    pub fn execute(input: Vec<String>, input2: Vec<String>, rd : i32) {	
         let mut cargs = Vec::new();
             for i in input {
                 let cstring = CString::new(i).unwrap();
