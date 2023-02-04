@@ -34,6 +34,14 @@ use nix::unistd::execv;
 use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
 
 use std::env;
+use::libc::pid_t;
+
+mod backgroundExecute;
+use backgroundExecute::backgroundExecute::background_execute;
+use nix::unistd::Pid;
+use procinfo::pid::status;
+
+use std::time::Duration;
 
 fn main(){
   
@@ -41,8 +49,41 @@ fn main(){
 
     let mut path_vars_vec: Vec<&str> = path_var.split(":").collect();
 
+    let mut jobs: Vec<pid_t> = Vec::new();
+    let mut job: i32 = 0;
+    let mut saved_args:Vec<Vec<String>> = Vec::new();
+    let mut jobs_delete: Vec<usize> = Vec::new();
     loop {
         let mut rdNum = 0;  //Passing in IOredirection behavior as an int
+
+        
+        //if there is a job running in background, loop through the list
+        //of jobs and check their status. If finished remove from list.
+        if(jobs.len() > 0) {
+            
+            for i in 0..(jobs.len()) {
+         
+                if (procinfo::pid::stat(jobs[i]).unwrap().state != procinfo::pid::State::Running)
+                {
+                    print!("[{}]+ [", jobs[i]);
+                    for n in 0..(saved_args[i].len()) {
+                    print!(" {} ", saved_args[i][n]);
+                    }
+                    jobs_delete.push(i);
+                    println!("]");
+                    io::stdout().flush().expect("flush failure");
+
+                }
+                      
+            }
+            for i in 0..(jobs_delete.len()) {
+                if(jobs.len() != 0){
+                jobs.remove(jobs_delete[i]);
+                saved_args.remove(jobs_delete[i]);
+                job = job - 1;
+                }
+            }
+        }
 
         //flush to ensure it prints before read_line
         printPrompt();
@@ -50,7 +91,7 @@ fn main(){
 	
         //Read input
         let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
+        io::stdin().read_line(&mut input).unwrap();        
 
         //Separate piped commands
         let mut commands : Vec<&str> = input.split("|").collect();
@@ -115,8 +156,26 @@ fn main(){
         args1 = argVec[0].clone();
         args2 = argVec[1].clone();
         args3 = argVec[2].clone();
-        
-        execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
-    }		
+
+        //executes the process in background, storing a job number, 
+        //and pushes the process id returned from execution into 
+        //a vectore of process ids called jobs.
+        let mut pid: i32 = 0;
+        let small_time = Duration::new(0, 5000000);
+        if (args1[args1.len() - 1] == "&")
+        {
+            job = job + 1;
+            print!("[{}] ",job);
+            args1.pop();
+            saved_args.push(args1.clone());
+            pid = background_execute(args1, pvec1);
+            std::thread::sleep(small_time);
+            jobs.push(pid);      
+        }
+        else
+        {
+            execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+        }
+    }
 }
 
