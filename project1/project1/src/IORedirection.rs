@@ -3,8 +3,8 @@ pub mod IORedirection {
     use std::io::Write;
     use std::fs::OpenOptions;
 
-    use std::os::fd::{AsRawFd};
-    
+//    use std::os::fd::{AsRawFd};
+    use std::os::unix::io::AsRawFd;
 
     pub fn overwrite(outfile : &str) {
         let file = OpenOptions::new()

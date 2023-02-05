@@ -9,7 +9,8 @@ pub mod execution {
 
     use std::time::Duration;
 
-    use std::os::fd::{AsRawFd, AsFd};
+//    use std::os::fd::{AsRawFd, AsFd};
+    use std::os::unix::io::AsRawFd;
 
     use std::env;
 
@@ -124,7 +125,13 @@ pub mod execution {
                 }
                 for i in 0..cpvec1.len() {
                     cargs1[0] = cpvec1[i].to_owned();
-                    execv(&cargs1[0], &cargs1);
+/*		    if execv(&cargs1[0], &cargs1).is_err() == true {
+			println!("invalid command");
+		    }else {
+                        execv(&cargs1[0], &cargs1);
+		    }*/
+		    execv(&cargs1[0], &cargs1);
+                    //execv(&cargs1[0], &cargs1);
                 //unsafe { libc::_exit(0) };       ------May need to look back into this but for now it works -----
                 }
             }
