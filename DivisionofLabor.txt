@@ -1,0 +1,22 @@
+Group 6 - Matthew Christoffel, Nick Ratzlaff, Anthony knapik
+Parsing - Matthew Christoffel, Nick Ratzlaff, Anthony knapik
+
+Environment Tables- Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
+
+Prompt - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
+
+Tilde expansion - Nick Ratzlaff, Anthony Knapik
+
+$Path Search - Anthony Knapik, Matthew Christoffel
+
+External Command Execution - Matthew Christoffel, Nick Ratzlaff
+
+I/O Redirection - Nick Ratzlaff, Anthony Knapik
+
+Piping - Anthony Knapik, Matthew Christoffel
+
+Background Processing - Matthew Christoffel, Nick Ratzlaff
+
+Built in Functions - Matthew Christoffel, Nick Ratzlaff, Anthony knapik
+
+ExtraCredit  - Matthew Christoffel, Nick Ratzlaff, Anthony knapik
