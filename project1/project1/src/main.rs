@@ -12,6 +12,9 @@ use envVar::envVar::replace as replaceEnv;
 mod tilde;
 use tilde::tilde::replace as replaceTilde;
 
+mod commandSplit;
+use commandSplit::commandSplit::getTokens;
+
 mod IORedirection;
 
 
@@ -116,100 +119,115 @@ fn main(){
 	
         //Read input
         let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        
-        
+        io::stdin().read_line(&mut input).unwrap();        
 
-	//take in the string as tokens splitting whitespaces
-	let tokens = input.split_whitespace();
-
-	//create vectors to hold the strings and CStrings
-	let mut args = Vec::new();
-
-	//psuh each string into args vector
-        for token in tokens {
-            args.push(token.to_string());
+        //Separate piped commands
+        let mut commands : Vec<&str> = input.split("|").collect();
+        let numPipes = (commands.len() as i32) - 1;
+        if commands.len() > 3 {
+            println!("Too many piped commands");
+            continue;
         }
 
-	//loop through the strings to find if any command 
-	//is environment variable, ~ expansion, or io redirection
-	for i in 0..args.len() {
-            //Replace environment variables
-            if args[i].starts_with('$') {
-                args[i] = replaceEnv(args[i].to_string());
-            }
-            //Replace tilde
-            if args[i].starts_with('~') {
-                args[i] = replaceTilde(args[i].to_string());
-            }
-            //Assign int for redirection behavior
-            if args[i] == ">" {
-                if rdNum == 2 {
-                    rdNum = 3;
-                }
-                else {
-                    rdNum = 1;
-                }              
-            }
-            else if args[i] == "<" {
-                if rdNum == 1 {
-                    rdNum = 4;
-                }
-                else {
-                    rdNum = 2;
-                }               
-            }
+        let (mut args1, mut args2, mut args3) = getTokens(commands);
+        let mut argVec = Vec::new();
+        argVec.push(args1);
+        argVec.push(args2);
+        argVec.push(args3);
 
-            //jobs background functions.
-            if args[i] == "jobs" {
-                if jobs.len() >= 0 {
-                    for i in 0..jobs.len() {
-                    print!("[{}]+ [{}]", i+1, jobs[i]);
-                    for n in 0..(saved_args[i].len()) {
-                        print!(" {} ", saved_args[i][n]);
-                        }
-                        println!("]");
+        //loop through the strings to find if any command 
+        //is environment variable, ~ expansion, or io redirection
+        for j in 0..argVec.len() {
+            for i in 0..argVec[j].len() {
+                //Replace environment variables
+                if argVec[j][i].starts_with('$') {
+                    argVec[j][i] = replaceEnv(argVec[j][i].to_string());
+                }
+                //Replace tilde
+                if argVec[j][i].starts_with('~') {
+                    argVec[j][i] = replaceTilde(argVec[j][i].to_string());
+                }
+                //Assign int for redirection behavior
+                if argVec[j][i] == ">" {
+                    if rdNum == 2 {
+                        rdNum = 3;
                     }
+                    else {
+                        rdNum = 1;
+                    }              
+                }
+                else if argVec[j][i] == "<" {
+                    if rdNum == 1 {
+                        rdNum = 4;
+                    }
+                    else {
+                        rdNum = 2;
+                    }               
+                }
+    
+            // //jobs background functions.
+            // if args[i] == "jobs" {
+            //     if jobs.len() >= 0 {
+            //         for i in 0..jobs.len() {
+            //         print!("[{}]+ [{}]", i+1, jobs[i]);
+            //         for n in 0..(saved_args[i].len()) {
+            //             print!(" {} ", saved_args[i][n]);
+            //             }
+            //             println!("]");
+            //         }
                     
-                }
-                else
-                {
-                    println!("No Jobs Active");
+            //     }
+            //     else
+            //     {
+            //         println!("No Jobs Active");
 
-                }
-            }
-            io::stdout().flush().ok();
+            //     }
+            // }
+            // io::stdout().flush().ok();
 
         }
+        }
 
-	//create vec to hold the return of path_search (vector of command added to 
-	//to the end of each directory path 
-	let pvec: Vec<String> = path_search(&path_vars_vec, &args);
+        //create vec to hold the return of path_search (vector of command added to 
+        //to the end of each directory path 
+        let mut pvec1: Vec<String> = path_search(&path_vars_vec, &argVec[0]);
+        let mut pvec2 = Vec::new();
+        let mut pvec3 = Vec::new();
 
-    //executes the process in background, storing a job number, 
-    //and pushes the process id returned from execution into 
-    //a vectore of process ids called jobs.
-    
-    let small_time = Duration::new(0, 5000000);
-    if args[args.len() - 1] == "&"
-    {
-        job += 1;
-        jobs_complete.push(job);
-        print!("[{}] ",job);
-        args.pop();
-        saved_args.push(args.clone());
-        let pid: pid_t = background_execute(args, pvec, rdNum);
-        std::thread::sleep(small_time);
-        jobs.push(pid);
+        if numPipes > 0 {
+            pvec2 = path_search(&path_vars_vec, &argVec[1]);
+        }
+
+        if numPipes > 1 {
+            pvec3 = path_search(&path_vars_vec, &argVec[2]);
+        }
+
+        args1 = argVec[0].clone();
+        args2 = argVec[1].clone();
+        args3 = argVec[2].clone();
+
+        //executes the process in background, storing a job number, 
+        //and pushes the process id returned from execution into 
+        //a vectore of process ids called jobs.
         
-    }
-    
+        let small_time = Duration::new(0, 5000000);
+        if args1[args1.len() - 1] == "&"
+        {
+            job += 1;
+        jobs_complete.push(job);
+            print!("[{}] ",job);
+            args1.pop();
+            saved_args.push(args1.clone());
+            let pid: pid_t = background_execute(args1, pvec1, rdNum);
+            std::thread::sleep(small_time);
+            jobs.push(pid);      
+        }
+        
     //executes normally
     else
-    {
-	    execute(args, pvec,rdNum);
-
+        {
+            execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+        }
     }
-}
 }
 
