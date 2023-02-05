@@ -56,7 +56,9 @@ fn main(){
     //let mut active_jobs: Vec<i32> = Vec::new();
     let mut job: i32 = 0;
     let mut jobs_complete: Vec<i32> = Vec::new();
-    let mut saved_args:Vec<Vec<String>> = Vec::new();
+    let mut saved_args1:Vec<Vec<String>> = Vec::new();
+    let mut saved_args2:Vec<Vec<String>> = Vec::new();
+    let mut saved_args3:Vec<Vec<String>> = Vec::new();
     loop {
         let mut rdNum = 0;  //Passing in IOredirection behavior as an int
         let mut jobs_delete: Vec<i32> = Vec::new();
@@ -77,9 +79,25 @@ fn main(){
                     == Ok::<WaitStatus, Errno>(WaitStatus::Exited(nix::unistd::Pid::from_raw(jobs[i]), 0))
                         {
                             print!("[{}]+ [", jobs_complete[i]);
-                            for n in 0..(saved_args[i].len()) 
+                            for n in 0..(saved_args1[i].len()) 
                             {
-                                print!(" {} ", saved_args[i][n]);
+                                print!(" {} ", saved_args1[i][n]);
+                            }
+                            if (!saved_args2.is_empty())
+                            {
+                                print!("|");
+                                for n in 0..(saved_args2[i].len()) 
+                                {
+                                    print!(" {} ", saved_args2[i][n]);
+                                }
+                            }
+                            if(!saved_args3.is_empty())
+                            {
+                                print!("|");
+                                for n in 0..(saved_args3[i].len()) 
+                                {
+                                    print!(" {} ", saved_args3[i][n]);
+                                }
                             }
                             // println!("pushing: {}, pid: {}", i, jobs[i]);
                             jobs_delete.push(jobs[i]);
@@ -97,7 +115,7 @@ fn main(){
                      {
                         if (jobs[n] == jobs_delete[i]) {
                             jobs.remove(n);
-                            saved_args.remove(n);
+                            saved_args1.remove(n);
                             jobs_complete.remove(n);
                             io::stdout().flush().expect("flush failure");
                             break;
@@ -107,6 +125,9 @@ fn main(){
                 if (jobs.is_empty())
                 {
                     job = 0;
+                    saved_args1.clear();
+                    saved_args2.clear();
+                    saved_args3.clear();
                 }
             }
 
@@ -205,26 +226,68 @@ fn main(){
         args1 = argVec[0].clone();
         args2 = argVec[1].clone();
         args3 = argVec[2].clone();
+        
 
         //executes the process in background, storing a job number, 
         //and pushes the process id returned from execution into 
         //a vectore of process ids called jobs.
-        
         let small_time = Duration::new(0, 5000000);
-        if args1[args1.len() - 1] == "&"
+        
+        if(!args3.is_empty())
+        {
+            if(args3[args3.len() - 1] == "&")
+            {
+                job += 1;
+                jobs_complete.push(job);
+                print!("[{}] ",job);
+                args3.pop();
+                io::stdout().flush().ok();
+                saved_args1.push(args1.clone());
+                saved_args2.push(args2.clone());
+                saved_args3.push(args3.clone());
+                let pid: pid_t = background_execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+                std::thread::sleep(small_time);
+                jobs.push(pid);      
+            }
+            else{
+                execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+            }
+        }
+        else if(!args2.is_empty())
+        {
+            if(args2[args2.len() - 1] == "&")
+            {
+                job += 1;
+                jobs_complete.push(job);
+                print!("[{}] ",job);
+                args2.pop();
+                io::stdout().flush().ok();
+                saved_args1.push(args1.clone());
+                saved_args2.push(args2.clone());
+                let pid: pid_t = background_execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+                std::thread::sleep(small_time);
+                jobs.push(pid);      
+            }
+            else{
+                execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
+            }
+        }
+
+        else if (args1[args1.len() - 1] == "&")
         {
             job += 1;
         jobs_complete.push(job);
             print!("[{}] ",job);
             args1.pop();
-            saved_args.push(args1.clone());
-            let pid: pid_t = background_execute(args1, pvec1, rdNum);
+            io::stdout().flush().ok();
+            saved_args1.push(args1.clone());
+            let pid: pid_t = background_execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
             std::thread::sleep(small_time);
             jobs.push(pid);      
         }
         
     //executes normally
-    else
+        else
         {
             execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
         }
