@@ -17,14 +17,14 @@ Built-in Functions - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 Extra Credit - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 
 Updated Work Division -
-Parsing - 
-Environment Variables -
-Prompt -
-Tilde Expansion -
+Parsing - Nicholas Ratzlaff
+Environment Variables - Nicholas Ratzlaff
+Prompt - Nicholas Ratzlaff
+Tilde Expansion - Nicholas Ratzlaff
 $Path Search - 
 External Command Execution - 
-I/O Redirection - 
-Piping - 
+I/O Redirection - Nicholas Ratzlaff
+Piping - Nicholas Ratzlaff
 Background Processing -
 Built-in Functions -
 Extra Credit - 
@@ -64,12 +64,12 @@ File Listing -
 -- makefile to run the project.
 
 Makefile Specifications
-- Running the makefile involves typing make into the terminal to create the "shell"
+- Running the makefile involves typing "make" into the terminal to create the "shell"
   executable and then tping that into the command line. The project should run from
   there. The project is in Rust, so you may have to set the path variable with
   path = ($path /home/majors/your_linprog_username/.cargo/bin) if on linprog. From
   there, simply typing "shell" in the command prompt should start the project. If
-  in a differetn machine, typing "./shell" after running typing "make" may be 
+  in a different machine, typing "./shell" after running typing "make" may be 
   required.  
 
 Bugs -
