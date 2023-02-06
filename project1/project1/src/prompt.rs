@@ -2,6 +2,9 @@
 //use crate::envVar::envVar::replace;
 
 pub mod prompt {
+    use crate::direc;
+    use direc::direc::find_curr_direc;
+    
     pub fn print() {
         let mut testStr: String = "".to_string();
         //let user : String = "$USER".to_string();
@@ -9,7 +12,8 @@ pub mod prompt {
         testStr.push('@');
         testStr.push_str(crate::envVar::envVar::replace("$MACHINE".to_string()).as_str());
         testStr.push_str(" : ");
-        testStr.push_str(crate::envVar::envVar::replace("$PWD".to_string()).as_str());
+//        testStr.push_str(crate::envVar::envVar::replace("$PWD".to_string()).as_str());
+	testStr.push_str(find_curr_direc().as_str());
         testStr.push_str(" >");
         print!("{testStr}");
     }

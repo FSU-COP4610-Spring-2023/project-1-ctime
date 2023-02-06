@@ -46,6 +46,11 @@ use backgroundExecute::backgroundExecute::background_execute;
 
 use std::time::Duration;
 
+
+mod direc;
+use direc::direc::find_curr_direc;
+use direc::direc::change_dir;
+
 fn main(){
   
     let path_var = env::var("PATH").unwrap_or("".to_string());
@@ -155,6 +160,14 @@ fn main(){
         argVec.push(args1);
         argVec.push(args2);
         argVec.push(args3);
+
+        //added cd functionality here. calls change_dir function to switch directories
+        if argVec[0][0] == "cd" {
+            let temp_string: String = find_curr_direc();
+            change_dir(find_curr_direc(), &argVec[0]);
+        }
+
+
 
         //loop through the strings to find if any command 
         //is environment variable, ~ expansion, or io redirection
@@ -285,7 +298,17 @@ fn main(){
             std::thread::sleep(small_time);
             jobs.push(pid);      
         }
-        
+/*
+	if &argVec[0][0] == &"exit".to_string() {
+            if &jobs.is_empty() == &true {
+                println!("no valid commands were executed in this shell");
+            }
+            for i in &jobs {
+                println!("the following commands were last executed:");
+                println!("{:?}", &jobs);
+            }
+            break;
+        }*/        
     //executes normally
         else
         {
