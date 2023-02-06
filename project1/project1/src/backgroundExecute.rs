@@ -11,7 +11,8 @@ pub mod backgroundExecute{
     use nix::unistd::Pid;
     use nix::unistd::close;
     use std::time::Duration;
-    use std::os::fd::{AsRawFd, AsFd};
+//    use std::os::fd::{AsRawFd, AsFd};
+    use std::os::unix::io::AsRawFd;
     use std::env;
 
     
