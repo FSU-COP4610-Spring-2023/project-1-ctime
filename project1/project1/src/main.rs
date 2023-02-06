@@ -167,7 +167,38 @@ fn main(){
             change_dir(find_curr_direc(), &argVec[0]);
         }
 
-
+        if argVec[0][0] == "jobs" {
+            if jobs.len() >= 0 {
+                for i in 0..jobs.len() {
+                    print!("[{}]+ [{}] [", i+1, jobs[i]);
+                    for n in 0..(saved_args1[i].len()) 
+                    {
+                        print!(" {} ", saved_args1[i][n]);
+                    }
+                    if (!saved_args2.is_empty())
+                    {
+                        print!("|");
+                        for n in 0..(saved_args2[i].len()) 
+                        {
+                            print!(" {} ", saved_args2[i][n]);
+                        }
+                    }
+                    if(!saved_args3.is_empty())
+                    {
+                        print!("|");
+                        for n in 0..(saved_args3[i].len()) 
+                        {
+                            print!(" {} ", saved_args3[i][n]);
+                        }
+                    }
+                    println!("]");
+                }
+            }
+            else
+            {
+            }
+            io::stdout().flush().ok();           
+        }
 
         //loop through the strings to find if any command 
         //is environment variable, ~ expansion, or io redirection
@@ -199,26 +230,7 @@ fn main(){
                     }               
                 }
     
-            // //jobs background functions.
-            // if args[i] == "jobs" {
-            //     if jobs.len() >= 0 {
-            //         for i in 0..jobs.len() {
-            //         print!("[{}]+ [{}]", i+1, jobs[i]);
-            //         for n in 0..(saved_args[i].len()) {
-            //             print!(" {} ", saved_args[i][n]);
-            //             }
-            //             println!("]");
-            //         }
-                    
-            //     }
-            //     else
-            //     {
-            //         println!("No Jobs Active");
-
-            //     }
-            // }
-            // io::stdout().flush().ok();
-
+           
         }
         }
 
