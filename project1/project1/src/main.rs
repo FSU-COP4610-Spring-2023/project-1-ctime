@@ -38,6 +38,8 @@ mod direc;
 use direc::direc::find_curr_direc;
 use direc::direc::change_dir;
 
+use libc::exit;
+
 fn main(){
   
     let path_var = env::var("PATH").unwrap_or("".to_string());
@@ -50,6 +52,10 @@ fn main(){
     let mut saved_args1:Vec<Vec<String>> = Vec::new();
     let mut saved_args2:Vec<Vec<String>> = Vec::new();
     let mut saved_args3:Vec<Vec<String>> = Vec::new();
+    //previous command array
+    let mut last_command:Vec<String> = Vec::new();
+    //exit check
+    let mut exit = false;
     loop {
         let mut rdNum = 0;  //Passing in IOredirection behavior as an int
         let mut jobs_delete: Vec<i32> = Vec::new();
@@ -61,6 +67,11 @@ fn main(){
             for i in 0..(jobs.len())
             {
                 if jobs[i] != 0 {
+                    if exit == true
+                    {
+                        waitpid(nix::unistd::Pid::from_raw(jobs[i]), None);
+                        jobs_delete.push(jobs[i]);
+                    }
                     if procinfo::pid::stat(jobs[i]).expect("error finding pid").state == procinfo::pid::State::Zombie
                     {
                         if Ok::<WaitStatus, Errno>(waitpid(nix::unistd::Pid::from_raw(jobs[i]), None).expect("error"))
@@ -117,7 +128,10 @@ fn main(){
                 }
             }
         }
-
+        if exit == true
+        {
+            unsafe {libc::exit(0)};
+        }
 
         //flush to ensure it prints before read_line
         printPrompt();
@@ -126,7 +140,10 @@ fn main(){
         //Read input
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();        
-
+        if input != "exit\n"
+        {
+            last_command.push(input.clone());
+        }
         //Separate piped commands
         let commands : Vec<&str> = input.split("|").collect();
         let numPipes = (commands.len() as i32) - 1;
@@ -175,6 +192,26 @@ fn main(){
                 }
             }
             io::stdout().flush().ok();           
+        }
+        if argVec[0][0] == "exit"
+        {
+            exit = true;
+            if last_command.len() >= 3
+            {
+                println!("The following was the last three valid commands executed:");
+                print!("1. {}", last_command.pop().unwrap());
+                print!("2. {}", last_command.pop().unwrap());
+                print!("3. {}", last_command.pop().unwrap());
+            }
+            else if !last_command.is_empty()
+            {
+                println!("The last valid command executed was:");
+                println!("{}", last_command.pop().unwrap());
+            }
+            else
+            {
+                println!("No valid commands were executed in this shell");
+            }
         }
 
         //loop through the strings to find if any command 
