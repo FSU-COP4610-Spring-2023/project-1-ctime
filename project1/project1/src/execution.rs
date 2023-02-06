@@ -1,47 +1,12 @@
 pub mod execution {
-    use std::io::{self};
-
     use std::ffi::CString;
-    
-
     use nix::unistd::execv;
-    use nix::{sys::wait::waitpid, unistd::{fork, ForkResult, write}};
-
+    use nix::{sys::wait::waitpid, unistd::{fork, ForkResult}};
     use std::time::Duration;
-
-//    use std::os::fd::{AsRawFd, AsFd};
     use std::os::unix::io::AsRawFd;
-
-    use std::env;
-
     use nix::unistd::close;
 
-    pub fn fill_arg_vector() -> Vec<String> {
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        
-        let tokens = input.split_whitespace();
-
-        let mut args = Vec::new();
-
-        for token in tokens {
-	    args.push(token.to_string());
-	}     
-
-	args
-    }
-   
-    pub fn convert_to_cstring(mut input: Vec<String>) -> Vec<CString> {
-	let mut cargs = Vec::new();
-	for i in input {
-	    let cstring = CString::new(i).unwrap();
-	    cargs.push(cstring);
-	}	
-
-	cargs
-    }
-
-    pub fn execute(mut args1: Vec<String>, mut pvec1: Vec<String>, mut args2: Vec<String>, mut pvec2: Vec<String>, mut args3 : Vec<String>, mut pvec3 : Vec<String>, rd : i32, numPipes : i32) {	       
+    pub fn execute(args1: Vec<String>, pvec1: Vec<String>, args2: Vec<String>, pvec2: Vec<String>, args3 : Vec<String>, pvec3 : Vec<String>, rd : i32, numPipes : i32) {	       
         let pipe1 = nix::unistd::pipe();
 
         let mut cargs1 = Vec::new();
@@ -87,7 +52,7 @@ pub mod execution {
             }
             Ok(ForkResult::Child) => {
                 if numPipes > 0 {
-                    nix::unistd::dup2(pipe1.unwrap().1, std::io::stdout().as_raw_fd());
+                    nix::unistd::dup2(pipe1.unwrap().1, std::io::stdout().as_raw_fd()).ok();
                 }
                 if rd == 1 {    //1: Output
                     let outfile = cargs1[cargs1.len() - 1].to_str();
@@ -125,41 +90,32 @@ pub mod execution {
                 }
                 for i in 0..cpvec1.len() {
                     cargs1[0] = cpvec1[i].to_owned();
-/*		    if execv(&cargs1[0], &cargs1).is_err() == true {
-			println!("invalid command");
-		    }else {
-                        execv(&cargs1[0], &cargs1);
-		    }*/
-		    execv(&cargs1[0], &cargs1);
-                    //execv(&cargs1[0], &cargs1);
-                //unsafe { libc::_exit(0) };       ------May need to look back into this but for now it works -----
+		            execv(&cargs1[0], &cargs1).ok();
                 }
             }
             Err(_) => println!("Forking Failed"),
         } 
-        close(pipe1.unwrap().1);
+        close(pipe1.unwrap().1).ok();
         let pipe2 = nix::unistd::pipe();
 
         if numPipes > 0 {
             //piped process 1
             match unsafe{fork()} {
-                Ok(ForkResult::Parent { child, ..}) => {
-                    //waitpid(child , None).unwrap();
+                Ok(ForkResult::Parent { child: _, ..}) => {
                     let sm_time = Duration::new(0,10000000);
                     std::thread::sleep(sm_time);
                 }
                 Ok(ForkResult::Child) => {
-                    nix::unistd::dup2(pipe1.unwrap().0, std::io::stdin().as_raw_fd());
+                    nix::unistd::dup2(pipe1.unwrap().0, std::io::stdin().as_raw_fd()).ok();
                     if numPipes == 2 {
-                        nix::unistd::dup2(pipe2.unwrap().1, std::io::stdout().as_raw_fd());
+                        nix::unistd::dup2(pipe2.unwrap().1, std::io::stdout().as_raw_fd()).ok();
                     }
                     for i in 0..cpvec2.len() {
                         cargs2[0] = cpvec2[i].to_owned();
-                        execv(&cargs2[0], &cargs2);
-                        //unsafe { libc::_exit(0) };
+                        execv(&cargs2[0], &cargs2).ok();
                     }
-                    close(pipe1.unwrap().0);
-                    close(pipe1.unwrap().1);
+                    close(pipe1.unwrap().0).ok();
+                    close(pipe1.unwrap().1).ok();
                 }
                 Err(_) => println!("Forking Failed"),
             }   
@@ -170,17 +126,15 @@ pub mod execution {
             std::thread::sleep(sm_time);
             //piped process 2
             match unsafe{fork()} {
-                Ok(ForkResult::Parent { child, ..}) => {
-                    //waitpid(child , None).unwrap();
+                Ok(ForkResult::Parent { child: _, ..}) => {
                     let sm_time = Duration::new(0,5000000);
                     std::thread::sleep(sm_time);
                 }
                 Ok(ForkResult::Child) => {
-                    nix::unistd::dup2(pipe2.unwrap().0, std::io::stdin().as_raw_fd());
+                    nix::unistd::dup2(pipe2.unwrap().0, std::io::stdin().as_raw_fd()).ok();
                     for i in 0..cpvec3.len() {
                         cargs3[0] = cpvec3[i].to_owned();
-                        execv(&cargs3[0], &cargs3);
-                        //unsafe { libc::_exit(0) };
+                        execv(&cargs3[0], &cargs3).ok();
                     }
                 }
                 Err(_) => println!("Forking Failed"),
