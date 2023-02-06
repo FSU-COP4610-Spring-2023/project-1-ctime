@@ -26,6 +26,9 @@ use nix::sys::wait::WaitStatus;
 use nix::sys::wait::waitpid;
 use nix::errno::Errno;
 
+mod echoFunc;
+use echoFunc::echoFunc::echoCmd;
+
 use std::env;
 use::libc::pid_t;
 
@@ -309,7 +312,6 @@ fn main(){
                 execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
             }
         }
-
         else if args1[args1.len() - 1] == "&"
         {
             job += 1;
@@ -322,6 +324,9 @@ fn main(){
             std::thread::sleep(small_time);
             jobs.push(pid);      
         }
+	else if args1[0] == "echo" {
+	    echoCmd(&argVec[0]);
+	}
         else
         {
             execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
