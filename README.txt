@@ -16,6 +16,19 @@ Background Processing - Matthew Christoffel, Nick Ratzlaff
 Built-in Functions - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 Extra Credit - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 
+Updated Work Division -
+Parsing - 
+Environment Variables -
+Prompt -
+Tilde Expansion -
+$Path Search - 
+External Command Execution - 
+I/O Redirection - 
+Piping - 
+Background Processing -
+Built-in Functions -
+Extra Credit - 
+
 File Listing -
 - backgroundExecute.rs
 -- file with functions to help run background execution of commands within the shell.
