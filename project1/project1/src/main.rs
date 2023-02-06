@@ -76,7 +76,7 @@ fn main(){
                         waitpid(nix::unistd::Pid::from_raw(jobs[i]), None).ok();
                         jobs_delete.push(jobs[i]);
                     }
-                    if procinfo::pid::stat(jobs[i]).expect("error finding pid").state == procinfo::pid::State::Zombie
+                    else if procinfo::pid::stat(jobs[i]).expect("error finding pid").state == procinfo::pid::State::Zombie
                     {
                         if Ok::<WaitStatus, Errno>(waitpid(nix::unistd::Pid::from_raw(jobs[i]), None).expect("error"))
                         == Ok::<WaitStatus, Errno>(WaitStatus::Exited(nix::unistd::Pid::from_raw(jobs[i]), 0))
