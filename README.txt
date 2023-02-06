@@ -25,8 +25,8 @@ $Path Search -
 External Command Execution - 
 I/O Redirection - Nicholas Ratzlaff
 Piping - Nicholas Ratzlaff
-Background Processing -
-Built-in Functions -
+Background Processing - Matthew Christoffel
+Built-in Functions - exit, jobs - Matthew Christoffel
 Extra Credit - 
 
 File Listing -
@@ -79,6 +79,7 @@ causing an ECHILD error. To my knowledge thats the only reason that error will a
 Very rare that this happens. Does not work correctly with piping. The initial command fails to exit.
 Output for piping is nearly correct, however outputs incorrectly if multiple jobs are active at the 
 same time as a background piped process.
+Exit function will take any input, not just commands. Assuming appropriate input, works fine.
 Anthony -
 cd Command - At points, the cd command will tell the user that a certain destination directory does
 not exist when it in fact does. It will still direct the user to said directory. unsure of why this 
