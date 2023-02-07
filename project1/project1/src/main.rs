@@ -41,8 +41,6 @@ mod direc;
 use direc::direc::find_curr_direc;
 use direc::direc::change_dir;
 
-use libc::exit;
-
 fn main(){
   
     let path_var = env::var("PATH").unwrap_or("".to_string());
@@ -72,7 +70,7 @@ fn main(){
                 if jobs[i] != 0 {
                     if exit == true
                     {
-                        waitpid(nix::unistd::Pid::from_raw(jobs[i]), None);
+                        waitpid(nix::unistd::Pid::from_raw(jobs[i]), None).ok();
                         jobs_delete.push(jobs[i]);
                     }
                     if procinfo::pid::stat(jobs[i]).expect("error finding pid").state == procinfo::pid::State::Zombie
@@ -324,9 +322,9 @@ fn main(){
             std::thread::sleep(small_time);
             jobs.push(pid);      
         }
-	else if args1[0] == "echo" {
-	    echoCmd(&argVec[0]);
-	}
+        else if args1[0] == "echo" {
+            echoCmd(&argVec[0]);
+        }
         else
         {
             execute(args1, pvec1, args2, pvec2, args3, pvec3, rdNum, numPipes);
