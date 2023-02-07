@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(unused_comparisons)]
+#![allow(unused_imports)]
 
 use std::io::{self, Write};
 mod prompt;
@@ -40,6 +41,8 @@ use std::time::Duration;
 mod direc;
 use direc::direc::find_curr_direc;
 use direc::direc::change_dir;
+
+use libc::exit;
 
 fn main(){
   
