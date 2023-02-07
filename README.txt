@@ -17,16 +17,16 @@ Built-in Functions - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 Extra Credit - Matthew Christoffel, Nick Ratzlaff, Anthony Knapik
 
 Updated Work Division -
-Parsing - Nicholas Ratzlaff
+Parsing - Nicholas Ratzlaff, Anthony Knapik
 Environment Variables - Nicholas Ratzlaff
 Prompt - Nicholas Ratzlaff
 Tilde Expansion - Nicholas Ratzlaff
-$Path Search - 
-External Command Execution - 
+$Path Search - Anthony Knapik
+External Command Execution - Anthony Knapik
 I/O Redirection - Nicholas Ratzlaff
 Piping - Nicholas Ratzlaff
 Background Processing - Matthew Christoffel
-Built-in Functions - exit, jobs - Matthew Christoffel
+Built-in Functions - exit, jobs - Matthew Christoffel - cd, echo - Anthony Knapik
 Extra Credit - 
 
 File Listing -
@@ -57,6 +57,9 @@ File Listing -
    or is located in a directroy path on the machine.
 - tilde.rs
 -- file that implements tilde expansion to the home directory of the current machine
+- echoFunc.rs
+-- after main.rs checks for echo command, function here checks for inputs follwing 
+   echo to be printed out to the user
 - main.rs
 -- calls functions from all of the afformentioned files to run the shell. Checks 
    for key characters to determine what commands are being run an executing.
